@@ -67,6 +67,7 @@ a{ color: inherit; }
 }
 .brand .dot{ width:6px; height:6px; border-radius:50%; background: var(--gold); flex-shrink:0; }
 .brand em{ font-style: italic; font-weight:500; color: var(--gold-bright); }
+.brand img{ height: 34px; width: auto; display:block; flex-shrink:0; }
 
 .nav-links{
   display:flex; align-items:center; gap: 28px; list-style:none;
