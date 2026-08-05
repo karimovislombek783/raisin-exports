@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Raisin Ledger — Uzbekistan's Export Trail, 2019–2025</title>
+<meta name="description" content="Six years of value, volume, and pricing data across Uzbekistan's top five raisin export markets, 2019–2025.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Shared site design system (nav, footer, buttons, cards). Everything below
+     in the page-local <style> block is the ORIGINAL dossier styling, kept
+     as-is so the article's look is unchanged. -->
+<link rel="stylesheet" href="/assets/site.css">
+
+<style>
+:root{
+--ink: #EDE3D3;
+--ink-dim: #B9AC97;
+--bg: #1B1416;
+--bg-raised: #241B1E;
+--line: #3A2E30;
+--gold: #C9962E;
+--gold-bright: #E3B04E;
+--wine: #7A2E2E;
+--teal: #3E7C7C;
+--teal-bright: #56A0A0;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+background: var(--bg);
+color: var(--ink);
+font-family: 'Source Serif 4', serif;
+line-height: 1.6;
+-webkit-font-smoothing: antialiased;
+}
+.wrap{ max-width: 980px; margin: 0 auto; padding: 0 28px; }
+/* subtle grain / vignette */
+body::before{
+content:"";
+position: fixed; inset:0;
+background:
+radial-gradient(ellipse at top, rgba(201,150,46,0.06), transparent 55%),
+radial-gradient(ellipse at bottom, rgba(62,124,124,0.05), transparent 55%);
+pointer-events:none; z-index:0;
+}
+header.hero{
+position:relative; z-index:1;
+padding: 84px 0 56px;
+border-bottom: 1px solid var(--line);
+}
+.eyebrow{
+font-family:'IBM Plex Mono', monospace;
+font-size: 12.5px;
+letter-spacing: 0.14em;
+text-transform: uppercase;
+color: var(--teal-bright);
+display:flex; align-items:center; gap:10px;
+margin-bottom: 26px;
+}
+.eyebrow .dot{ width:6px; height:6px; border-radius:50%; background: var(--gold); }
+h1{
+font-family:'Fraunces', serif;
+font-optical-sizing: auto;
+font-weight: 600;
+font-size: clamp(38px, 6vw, 68px);
+line-height: 1.03;
+letter-spacing: -0.01em;
+max-width: 15ch;
+margin-bottom: 22px;
+}
+h1 em{
+font-style: italic;
+font-weight: 500;
+color: var(--gold-bright);
+}
+.dek{
+font-size: 19px;
+color: var(--ink-dim);
+max-width: 56ch;
+margin-bottom: 40px;
+}
+.stat-row{
+display:grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 1px;
+background: var(--line);
+border: 1px solid var(--line);
+}
+.stat{
+background: var(--bg);
+padding: 20px 18px;
+}
+.stat .num{
+font-family:'IBM Plex Mono', monospace;
+font-size: 26px;
+font-weight: 600;
+color: var(--gold-bright);
+display:block;
+margin-bottom: 6px;
+font-variant-numeric: tabular-nums;
+}
+.stat .num.teal{ color: var(--teal-bright); }
+.stat .label{
+font-family:'IBM Plex Mono', monospace;
+font-size: 11px;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+color: var(--ink-dim);
+}
+section{ position:relative; z-index:1; padding: 64px 0; border-bottom: 1px solid var(--line); }
+section:last-of-type{ border-bottom:none; }
+.sec-head{ margin-bottom: 30px; }
+.sec-num{
+font-family:'IBM Plex Mono', monospace;
+font-size: 12px;
+color: var(--gold);
+letter-spacing: 0.1em;
+display:block;
+margin-bottom: 10px;
+}
+h2{
+font-family:'Fraunces', serif;
+font-weight: 600;
+font-size: clamp(24px, 3.4vw, 34px);
+max-width: 22ch;
+}
+.sec-note{
+color: var(--ink-dim);
+font-size: 16px;
+max-width: 60ch;
+margin-top: 12px;
+}
+.chart-card{
+background: var(--bg-raised);
+border: 1px solid var(--line);
+padding: 28px 24px 18px;
+}
+.chart-card canvas{ max-height: 340px; }
+.chart-legend-note{
+font-family:'IBM Plex Mono', monospace;
+font-size: 11.5px;
+color: var(--ink-dim);
+margin-top: 14px;
+letter-spacing: 0.02em;
+}
+.two-col{
+display:grid;
+grid-template-columns: 1fr 1fr;
+gap: 20px;
+}
+.year-toggle{
+display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 18px;
+}
+.year-btn{
+font-family:'IBM Plex Mono', monospace;
+font-size: 12px;
+letter-spacing: 0.04em;
+background: transparent;
+border: 1px solid var(--line);
+color: var(--ink-dim);
+padding: 7px 14px;
+cursor: pointer;
+transition: all 0.15s ease;
+}
+.year-btn:hover{ border-color: var(--gold); color: var(--ink); }
+.year-btn.active{
+background: var(--gold);
+border-color: var(--gold);
+color: #1B1416;
+font-weight:600;
+}
+table{
+width: 100%;
+border-collapse: collapse;
+font-family:'IBM Plex Mono', monospace;
+font-size: 13.5px;
+}
+thead th{
+text-align: left;
+font-size: 11px;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+color: var(--ink-dim);
+padding: 10px 12px;
+border-bottom: 1px solid var(--line);
+font-weight:500;
+}
+thead th:not(:first-child){ text-align: right; }
+tbody td{
+padding: 12px 12px;
+border-bottom: 1px solid var(--line);
+text-align: right;
+font-variant-numeric: tabular-nums;
+}
+tbody td:first-child{
+text-align: left;
+font-family: 'Source Serif 4', serif;
+font-size: 15px;
+color: var(--ink);
+}
+tbody tr:hover{ background: rgba(201,150,46,0.04); }
+.rank{
+display:inline-block;
+width: 20px; color: var(--gold);
+}
+.callout{
+border-left: 2px solid var(--wine);
+padding: 4px 0 4px 22px;
+margin: 34px 0;
+font-family: 'Fraunces', serif;
+font-size: 21px;
+font-style: italic;
+font-weight: 500;
+color: var(--ink);
+max-width: 52ch;
+}
+footer{
+padding: 48px 0 80px;
+position:relative; z-index:1;
+}
+footer p{
+font-family:'IBM Plex Mono', monospace;
+font-size: 12px;
+color: var(--ink-dim);
+letter-spacing: 0.02em;
+}
+footer a{ color: var(--teal-bright); text-decoration: none; border-bottom: 1px dotted var(--teal-bright); }
+@media (max-width: 720px){
+.stat-row{ grid-template-columns: repeat(2, 1fr); }
+.two-col{ grid-template-columns: 1fr; }
+header.hero{ padding: 56px 0 40px; }
+section{ padding: 44px 0; }
+}
+@media (prefers-reduced-motion: reduce){
+html{ scroll-behavior:auto; }
+.year-btn{ transition:none; }
+}
+
+/* --- new: minimal article framing added on top of the original design --- */
+.article-meta-bar{
+  position:relative; z-index:1;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:10px;
+}
+.back-link{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-dim);
+  text-decoration:none;
+}
+.back-link:hover{ color: var(--gold-bright); }
+.byline{
+  font-family:'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-dim);
+  letter-spacing: 0.02em;
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="dot"></span>Uzbekistan <em>Research</em> Desk</a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/research/" class="active">Research</a></li>
+      <li><a href="/data/">Data</a></li>
+      <li><a href="/about/">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="wrap article-meta-bar">
+  <a class="back-link" href="/research/">← Back to Research</a>
+  <span class="byline">Dossier No. 01 · Published 27.07.2026 · Uzbekistan Research Desk</span>
+</div>
+
+<div class="wrap">
+<article>
+<header class="hero">
+<div class="eyebrow"><span class="dot"></span>UZBEKISTAN EXPORT WATCH — DOSSIER NO. 01</div>
+<h1>The <em>raisin</em> trail: six years of Uzbekistan's driest export</h1>
+<p class="dek">From a $104M peak in 2019 to a pandemic collapse and back — tracking value, volume, and the five buyers who define the market, drawn from UN Comtrade and Uzbekistan's State Statistics Committee.</p>
+<div class="stat-row">
+<div class="stat">
+<span class="num">$127.6M</span>
+<span class="label">2025 export value</span>
+</div>
+<div class="stat">
+<span class="num teal">99,600t</span>
+<span class="label">2025 volume, a series high</span>
+</div>
+<div class="stat">
+<span class="num">$2.38</span>
+<span class="label">peak price/kg, 2021</span>
+</div>
+<div class="stat">
+<span class="num teal">China</span>
+<span class="label">top buyer, 5 of 6 years</span>
+</div>
+</div>
+</header>
+
+<section id="trend">
+<div class="sec-head">
+<span class="sec-num">01 — THE ARC</span>
+<h2>Value and volume, 2019–2025</h2>
+<p class="sec-note">A pandemic-era collapse, a strange low-volume/high-price year in 2021, and a recovery that's now running past pre-2020 levels.</p>
+</div>
+<div class="chart-card">
+<canvas id="trendChart"></canvas>
+<p class="chart-legend-note">GOLD — export value (USD) · TEAL — volume (tons), right axis</p>
+</div>
+</section>
+
+<div class="wrap">
+<div class="callout">2021 is the outlier: volume fell to a third of 2019's, yet price per kilogram nearly doubled — the tightest, most expensive year in the dataset.</div>
+</div>
+
+<section id="price">
+<div class="sec-head">
+<span class="sec-num">02 — THE PRICE LINE</span>
+<h2>Price per kilogram tells a different story than value alone</h2>
+<p class="sec-note">Kazakhstan buys at a persistent discount — often half what China or Turkey pay — a pattern worth investigating as possible re-export or transit trade.</p>
+</div>
+<div class="chart-card">
+<canvas id="priceChart"></canvas>
+</div>
+</section>
+
+<section id="destinations">
+<div class="sec-head">
+<span class="sec-num">03 — THE BUYERS</span>
+<h2>Top five destinations, year by year</h2>
+<p class="sec-note">China leads almost every year on value, but Kazakhstan periodically leads on tonnage — buying more raisins for less money.</p>
+</div>
+<div class="year-toggle" id="yearToggle"></div>
+<div class="chart-card">
+<canvas id="destChart"></canvas>
+</div>
+</section>
+
+<section id="totals">
+<div class="sec-head">
+<span class="sec-num">04 — THE LEDGER</span>
+<h2>Cumulative totals, 2019–2024</h2>
+<p class="sec-note">Six years, ranked by total export value.</p>
+</div>
+<div class="chart-card" style="padding:8px 24px 20px;">
+<table>
+<thead>
+<tr><th>Destination</th><th>Total value</th><th>Total volume</th><th>Avg price/kg</th></tr>
+</thead>
+<tbody id="totalsBody"></tbody>
+</table>
+</div>
+</section>
+
+<footer>
+<p>DATA — UN Comtrade Plus, Uzbekistan State Statistics Committee (stat.uz). 2025 figures preliminary; no confirmed by-country breakdown available yet. Compiled 27.07.2026.</p>
+<p style="margin-top:10px;"><a href="/research/">← Back to all research</a></p>
+</footer>
+</article>
+</div>
+
+<script>
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.color = '#B9AC97';
+
+const years = [2019,2020,2021,2022,2023,2024,2025];
+const value = [104645836,55137598,60827999,84022426,77517305,64800000,127600000];
+const volume = [73494,40927,25551,84084,66009,43800,99600];
+const price = [1.42,1.35,2.38,1.00,1.17,1.48,1.28];
+
+const destinationsByYear = {
+2019: [["China",26972888,25258],["Turkey",9211943,7299],["Russia",6700036,5641],["United Arab Emirates",3180386,3045],["Kazakhstan",2702036,3812]],
+2020: [["China",15202377,13307],["Turkey",5312176,3749],["Russia",4405162,3886],["Kazakhstan",2890798,3256],["United Arab Emirates",1661844,1421]],
+2021: [["China",16880463,7090],["Turkey",7294991,3064],["United Arab Emirates",5874625,2467],["Russia",3847600,1616],["Kazakhstan",2010317,844]],
+2022: [["Kazakhstan",13976407,27234],["China",11738407,10037],["Russia",10700645,8757],["Turkey",8319346,7098],["United Arab Emirates",8102953,6387]],
+2023: [["China",11794908,10873],["Kazakhstan",5952225,12714],["Russia",10050932,7980],["Turkey",9199839,5872],["United Arab Emirates",7743017,5180]],
+2024: [["Turkey",14287258,8375],["China",11623988,8479],["Russia",6385314,3622],["United Arab Emirates",5693224,3489],["Kazakhstan",4042329,7145]],
+};
+
+const totals = [
+["China",94213031,75044,1.26],
+["Turkey",53625533,35457,1.51],
+["Russia",42089689,31502,1.34],
+["United Arab Emirates",32256049,21989,1.47],
+["Kazakhstan",31574112,55005,0.57],
+];
+
+const fmtUSD = v => '$' + (v/1e6).toFixed(1) + 'M';
+const fmtUSDfull = v => '$' + v.toLocaleString('en-US');
+const fmtT = v => v.toLocaleString('en-US') + 't';
+
+new Chart(document.getElementById('trendChart'), {
+type: 'bar',
+data: {
+labels: years,
+datasets: [
+{
+label: 'Export value',
+data: value,
+backgroundColor: 'rgba(201,150,46,0.55)',
+borderColor: '#C9962E',
+borderWidth: 1,
+yAxisID: 'y',
+order: 2,
+},
+{
+label: 'Volume',
+data: volume,
+type: 'line',
+borderColor: '#56A0A0',
+backgroundColor: '#56A0A0',
+pointRadius: 3,
+pointBackgroundColor: '#1B1416',
+pointBorderColor: '#56A0A0',
+pointBorderWidth: 2,
+borderWidth: 2,
+tension: 0.25,
+yAxisID: 'y1',
+order: 1,
+}
+]
+},
+options: {
+responsive: true,
+interaction: { mode: 'index', intersect: false },
+plugins: {
+legend: { display: false },
+tooltip: {
+backgroundColor: '#241B1E',
+borderColor: '#3A2E30',
+borderWidth: 1,
+titleColor: '#EDE3D3',
+bodyColor: '#B9AC97',
+callbacks: {
+label: ctx => ctx.dataset.label === 'Export value'
+? ' Value: ' + fmtUSDfull(ctx.parsed.y)
+: ' Volume: ' + fmtT(ctx.parsed.y)
+}
+}
+},
+scales: {
+x: { grid: { color: '#3A2E30' }, ticks: { color: '#B9AC97' } },
+y: {
+position: 'left',
+grid: { color: '#3A2E30' },
+ticks: { color: '#C9962E', callback: v => fmtUSD(v) }
+},
+y1: {
+position: 'right',
+grid: { display: false },
+ticks: { color: '#56A0A0', callback: v => v/1000 + 'k' }
+}
+}
+}
+});
+
+new Chart(document.getElementById('priceChart'), {
+type: 'line',
+data: {
+labels: years,
+datasets: [{
+label: 'Price per kg',
+data: price,
+borderColor: '#E3B04E',
+backgroundColor: 'rgba(227,176,78,0.12)',
+pointRadius: 4,
+pointBackgroundColor: '#1B1416',
+pointBorderColor: '#E3B04E',
+pointBorderWidth: 2,
+borderWidth: 2,
+fill: true,
+tension: 0.3,
+}]
+},
+options: {
+responsive: true,
+plugins: {
+legend: { display: false },
+tooltip: {
+backgroundColor: '#241B1E',
+borderColor: '#3A2E30',
+borderWidth: 1,
+titleColor: '#EDE3D3',
+bodyColor: '#B9AC97',
+callbacks: { label: ctx => ' $' + ctx.parsed.y.toFixed(2) + '/kg' }
+}
+},
+scales: {
+x: { grid: { color: '#3A2E30' }, ticks: { color: '#B9AC97' } },
+y: { grid: { color: '#3A2E30' }, ticks: { color: '#B9AC97', callback: v => '$' + v.toFixed(2) } }
+}
+}
+});
+
+let destChartInstance;
+function renderDestChart(year){
+const rows = destinationsByYear[year];
+const labels = rows.map(r => r[0]);
+const values = rows.map(r => r[1]);
+const vols = rows.map(r => r[2]);
+
+if (destChartInstance) destChartInstance.destroy();
+
+destChartInstance = new Chart(document.getElementById('destChart'), {
+type: 'bar',
+data: {
+labels,
+datasets: [{
+label: 'Export value',
+data: values,
+backgroundColor: labels.map((_,i) => i === 0 ? '#E3B04E' : 'rgba(201,150,46,0.45)'),
+borderColor: '#C9962E',
+borderWidth: 1,
+}]
+},
+options: {
+indexAxis: 'y',
+responsive: true,
+plugins: {
+legend: { display: false },
+tooltip: {
+backgroundColor: '#241B1E',
+borderColor: '#3A2E30',
+borderWidth: 1,
+titleColor: '#EDE3D3',
+bodyColor: '#B9AC97',
+callbacks: {
+label: ctx => {
+const v = vols[ctx.dataIndex];
+return [' Value: ' + fmtUSDfull(ctx.parsed.x), ' Volume: ' + fmtT(v)];
+}
+}
+}
+},
+scales: {
+x: { grid: { color: '#3A2E30' }, ticks: { color: '#B9AC97', callback: v => fmtUSD(v) } },
+y: { grid: { display: false }, ticks: { color: '#EDE3D3', font: { family: "'Source Serif 4', serif", size: 14 } } }
+}
+}
+});
+}
+
+const toggle = document.getElementById('yearToggle');
+Object.keys(destinationsByYear).forEach((y, i) => {
+const btn = document.createElement('button');
+btn.className = 'year-btn' + (i === Object.keys(destinationsByYear).length - 1 ? ' active' : '');
+btn.textContent = y;
+btn.onclick = () => {
+document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+renderDestChart(y);
+};
+toggle.appendChild(btn);
+});
+renderDestChart(2024);
+
+const tbody = document.getElementById('totalsBody');
+totals.forEach((row, i) => {
+const tr = document.createElement('tr');
+tr.innerHTML = `<td><span class="rank">${i+1}</span>${row[0]}</td><td>${fmtUSDfull(row[1])}</td><td>${fmtT(row[2])}</td><td>$${row[3].toFixed(2)}/kg</td>`;
+tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>
