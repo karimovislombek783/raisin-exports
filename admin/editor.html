@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Article Editor — Uzbekistan Research Desk</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+  .admin-nav .wrap{ padding: 18px 28px; }
+  .editor-grid{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    align-items:start;
+  }
+  .field{ margin-bottom: 18px; }
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing:0.06em; text-transform:uppercase;
+    color: var(--ink-dim); margin-bottom: 8px;
+  }
+  .field input[type="text"], .field input[type="date"], .field textarea{
+    width:100%;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family:'Source Serif 4', serif;
+    font-size: 15px;
+    padding: 11px 12px;
+  }
+  .field textarea{ resize: vertical; }
+  .field input:focus, .field textarea:focus{ outline:none; border-color: var(--gold); }
+  #bodyInput{
+    font-family:'IBM Plex Mono', monospace; font-size: 13.5px; line-height:1.6;
+    min-height: 420px;
+  }
+  .slug-preview{
+    font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-dim);
+    margin-top: 6px;
+  }
+  .slug-preview strong{ color: var(--teal-bright); }
+  .preview-panel{
+    background: var(--bg-raised); border: 1px solid var(--line);
+    padding: 24px; min-height: 420px;
+  }
+  .preview-panel h4{
+    font-family:'IBM Plex Mono', monospace; font-size: 11px; letter-spacing:0.06em;
+    text-transform:uppercase; color: var(--ink-dim); margin-bottom: 16px;
+  }
+  .cover-preview{
+    max-width: 100%; max-height: 160px; display:block; margin-top:10px; border:1px solid var(--line);
+  }
+  .editor-actions{
+    display:flex; gap: 12px; flex-wrap:wrap; align-items:center;
+    padding: 24px 0; border-top: 1px solid var(--line); margin-top: 30px;
+  }
+  .editor-actions button{
+    font-family:'IBM Plex Mono', monospace; font-size: 12.5px; letter-spacing:0.05em; text-transform:uppercase;
+    cursor:pointer; padding: 12px 18px; border: 1px solid var(--line); background:none; color: var(--ink-dim);
+  }
+  .editor-actions button:hover{ color: var(--ink); }
+  #saveDraftBtn{ border-color: var(--teal); color: var(--teal-bright); }
+  #saveDraftBtn:hover{ background: var(--teal); color: #1B1416; }
+  #publishBtn{ border-color: var(--gold); color: var(--gold-bright); }
+  #publishBtn:hover{ background: var(--gold); color: #1B1416; }
+  #deleteBtn{ border-color: var(--wine); color: #E36E6E; margin-left:auto; }
+  #deleteBtn:hover{ background: var(--wine); color: var(--ink); }
+  #statusMsg{ font-family:'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-dim); }
+  @media (max-width: 860px){ .editor-grid{ grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav class="site-nav admin-nav">
+  <div class="wrap">
+    <a class="brand" href="/admin/dashboard.html"><span class="dot"></span>Admin <em>Dashboard</em></a>
+    <a class="text-link" href="/admin/dashboard.html">← Back to dashboard</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="hero" style="padding: 48px 0 30px;">
+    <div class="eyebrow"><span class="dot"></span><span id="modeLabel">NEW ARTICLE</span></div>
+    <h1 style="font-size: clamp(26px, 4vw, 38px);" id="pageTitle">Create an article</h1>
+  </header>
+
+  <section style="border-bottom:none; padding-top:0;">
+
+    <div class="field">
+      <label for="titleInput">Title</label>
+      <input type="text" id="titleInput" placeholder="Uzbekistan's Raisin Export Trail">
+      <p class="slug-preview" id="slugPreview">URL: <strong>/research/…</strong></p>
+    </div>
+
+    <div class="field">
+      <label for="dekInput">Short description (dek)</label>
+      <textarea id="dekInput" rows="2" placeholder="One or two sentences describing the piece."></textarea>
+    </div>
+
+    <div class="field">
+      <label for="dateInput">Date</label>
+      <input type="date" id="dateInput">
+    </div>
+
+    <div class="field">
+      <label for="coverInput">Cover image (optional)</label>
+      <input type="file" id="coverInput" accept="image/*">
+      <p id="coverStatus" class="slug-preview"></p>
+      <img id="coverPreview" class="cover-preview" style="display:none;">
+    </div>
+
+    <div class="editor-grid">
+      <div class="field" style="margin-bottom:0;">
+        <label for="bodyInput">Body (Markdown)</label>
+        <textarea id="bodyInput" placeholder="## A section heading&#10;&#10;Write your analysis here. **Bold**, *italic*, [links](https://example.com), and images all work.&#10;&#10;![alt text](image-url)"></textarea>
+      </div>
+      <div>
+        <div class="preview-panel">
+          <h4>Live preview</h4>
+          <div class="prose" id="bodyPreview"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="editor-actions">
+      <button id="saveDraftBtn">Save Draft</button>
+      <button id="publishBtn">Save &amp; Publish</button>
+      <button id="unpublishBtn" style="display:none;">Unpublish</button>
+      <span id="statusMsg"></span>
+      <button id="deleteBtn" style="display:none;">Delete Article</button>
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const editingSlug = params.get('slug');
+
+  const titleInput = document.getElementById('titleInput');
+  const dekInput = document.getElementById('dekInput');
+  const dateInput = document.getElementById('dateInput');
+  const coverInput = document.getElementById('coverInput');
+  const coverStatus = document.getElementById('coverStatus');
+  const coverPreview = document.getElementById('coverPreview');
+  const bodyInput = document.getElementById('bodyInput');
+  const bodyPreview = document.getElementById('bodyPreview');
+  const slugPreview = document.getElementById('slugPreview');
+  const statusMsg = document.getElementById('statusMsg');
+
+  let coverImageUrl = '';
+  let currentArticle = null;
+
+  function todayISO() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function slugifyClient(str) {
+    return (str || '')
+      .toLowerCase().trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function renderPreview() {
+    bodyPreview.innerHTML = marked.parse(bodyInput.value || '*Nothing written yet.*');
+  }
+
+  function updateSlugPreview() {
+    if (editingSlug) {
+      slugPreview.innerHTML = `URL: <strong>/research/${editingSlug}</strong> (fixed once created)`;
+    } else {
+      slugPreview.innerHTML = `URL: <strong>/research/${slugifyClient(titleInput.value) || '…'}</strong>`;
+    }
+  }
+
+  titleInput.addEventListener('input', updateSlugPreview);
+  bodyInput.addEventListener('input', renderPreview);
+
+  coverInput.addEventListener('change', async () => {
+    const file = coverInput.files[0];
+    if (!file) return;
+    coverStatus.textContent = 'Uploading…';
+    try {
+      const res = await fetch(`/api/admin/upload?filename=${encodeURIComponent(file.name)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Upload failed');
+      coverImageUrl = data.url;
+      coverStatus.textContent = 'Uploaded ✓';
+      coverPreview.src = coverImageUrl;
+      coverPreview.style.display = 'block';
+    } catch (err) {
+      coverStatus.textContent = 'Upload failed: ' + err.message;
+    }
+  });
+
+  async function checkAuth() {
+    const res = await fetch('/api/auth/me');
+    const data = await res.json();
+    if (!data.authenticated) {
+      window.location.href = '/admin/';
+      return false;
+    }
+    return true;
+  }
+
+  async function loadExisting() {
+    if (!editingSlug) {
+      dateInput.value = todayISO();
+      renderPreview();
+      updateSlugPreview();
+      return;
+    }
+
+    document.getElementById('modeLabel').textContent = 'EDIT ARTICLE';
+    document.getElementById('pageTitle').textContent = 'Edit article';
+    document.getElementById('deleteBtn').style.display = 'inline-block';
+
+    const res = await fetch(`/api/admin/articles/${encodeURIComponent(editingSlug)}`);
+    if (!res.ok) {
+      statusMsg.textContent = 'Could not load this article.';
+      return;
+    }
+    const data = await res.json();
+    currentArticle = data.article;
+
+    titleInput.value = currentArticle.title || '';
+    dekInput.value = currentArticle.dek || '';
+    dateInput.value = currentArticle.date || todayISO();
+    bodyInput.value = currentArticle.body || '';
+    coverImageUrl = currentArticle.coverImageUrl || '';
+    if (coverImageUrl) {
+      coverPreview.src = coverImageUrl;
+      coverPreview.style.display = 'block';
+    }
+
+    document.getElementById('unpublishBtn').style.display =
+      currentArticle.status === 'published' ? 'inline-block' : 'none';
+    document.getElementById('publishBtn').textContent =
+      currentArticle.status === 'published' ? 'Save Changes' : 'Save & Publish';
+
+    renderPreview();
+    updateSlugPreview();
+  }
+
+  function collectPayload(status) {
+    return {
+      title: titleInput.value.trim(),
+      dek: dekInput.value.trim(),
+      date: dateInput.value || todayISO(),
+      coverImageUrl,
+      body: bodyInput.value,
+      ...(status ? { status } : {}),
+    };
+  }
+
+  async function saveArticle(status) {
+    if (!titleInput.value.trim()) {
+      statusMsg.textContent = 'Title is required.';
+      return;
+    }
+    statusMsg.textContent = 'Saving…';
+
+    try {
+      let res;
+      if (editingSlug) {
+        res = await fetch(`/api/admin/articles/${encodeURIComponent(editingSlug)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(collectPayload(status)),
+        });
+      } else {
+        res = await fetch('/api/admin/articles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(collectPayload()),
+        });
+      }
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Save failed');
+
+      const article = data.article;
+
+      if (!editingSlug) {
+        // Created for the first time — if we also wanted to publish, do a follow-up PUT
+        if (status === 'published') {
+          const pub = await fetch(`/api/admin/articles/${encodeURIComponent(article.slug)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'published' }),
+          });
+          if (!pub.ok) throw new Error('Saved as draft, but publishing failed.');
+        }
+        window.location.href = `/admin/editor.html?slug=${encodeURIComponent(article.slug)}`;
+        return;
+      }
+
+      statusMsg.textContent = 'Saved ✓';
+      currentArticle = article;
+      document.getElementById('unpublishBtn').style.display =
+        article.status === 'published' ? 'inline-block' : 'none';
+      document.getElementById('publishBtn').textContent =
+        article.status === 'published' ? 'Save Changes' : 'Save & Publish';
+    } catch (err) {
+      statusMsg.textContent = 'Error: ' + err.message;
+    }
+  }
+
+  document.getElementById('saveDraftBtn').addEventListener('click', () => saveArticle('draft'));
+  document.getElementById('publishBtn').addEventListener('click', () => saveArticle('published'));
+
+  document.getElementById('unpublishBtn').addEventListener('click', async () => {
+    statusMsg.textContent = 'Updating…';
+    const res = await fetch(`/api/admin/articles/${encodeURIComponent(editingSlug)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'draft' }),
+    });
+    if (res.ok) {
+      statusMsg.textContent = 'Unpublished ✓';
+      document.getElementById('unpublishBtn').style.display = 'none';
+      document.getElementById('publishBtn').textContent = 'Save & Publish';
+    } else {
+      statusMsg.textContent = 'Failed to unpublish.';
+    }
+  });
+
+  document.getElementById('deleteBtn').addEventListener('click', async () => {
+    if (!confirm('Delete this article permanently? This cannot be undone.')) return;
+    await fetch(`/api/admin/articles/${encodeURIComponent(editingSlug)}`, { method: 'DELETE' });
+    window.location.href = '/admin/dashboard.html';
+  });
+
+  (async () => {
+    const ok = await checkAuth();
+    if (ok) loadExisting();
+  })();
+</script>
+
+</body>
+</html>

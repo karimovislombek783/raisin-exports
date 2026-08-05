@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/research/:slug", "destination": "/research/article.html?slug=:slug" }
+  ]
+}

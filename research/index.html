@@ -28,10 +28,22 @@
   <header class="hero" style="padding: 64px 0 48px;">
     <div class="eyebrow"><span class="dot"></span>ALL DOSSIERS</div>
     <h1 style="font-size: clamp(32px, 5vw, 52px);">Research</h1>
-    <p class="dek">Every dossier planned for this platform, newest first. Each one will pair an original chart set with a short written analysis. Nothing is published yet — check back soon for the first dossier.</p>
+    <p class="dek">Every dossier on this platform, newest first — each one pairs original data analysis with a written narrative.</p>
   </header>
 
+  <section id="published-articles" style="display:none;">
+    <div class="sec-head">
+      <span class="sec-num">PUBLISHED</span>
+      <h2>Live dossiers</h2>
+    </div>
+    <div class="article-grid" id="publishedGrid"></div>
+  </section>
+
   <section id="all-articles" style="border-bottom:none;">
+    <div class="sec-head" id="plannedHeading" style="display:none;">
+      <span class="sec-num">IN PROGRESS</span>
+      <h2>Planned dossiers</h2>
+    </div>
     <div class="article-grid">
 
       <!-- ARTICLE CARD — placeholder for a planned article -->
@@ -91,6 +103,58 @@
     <p>An independent student research project on Uzbekistan's agriculture, trade, and economic development.</p>
   </footer>
 </div>
+
+<script>
+  function fmtDate(iso) {
+    if (!iso) return '';
+    try {
+      return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch { return iso; }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  async function loadPublished() {
+    try {
+      const res = await fetch('/api/public/articles');
+      const data = await res.json();
+      const articles = data.articles || [];
+
+      if (articles.length === 0) {
+        document.getElementById('plannedHeading').style.display = 'block';
+        return;
+      }
+
+      const grid = document.getElementById('publishedGrid');
+      grid.innerHTML = articles.map((a, i) => `
+        <a class="article-card is-live" href="/research/${encodeURIComponent(a.slug)}">
+          <div class="card-top">
+            <span class="card-eyebrow">DOSSIER NO. ${String(i + 1).padStart(2, '0')}</span>
+            <span class="status-pill live">Published</span>
+          </div>
+          <h3>${escapeHtml(a.title)}</h3>
+          <p>${escapeHtml(a.dek)}</p>
+          <div class="card-meta">
+            <span>${fmtDate(a.date)}</span>
+            <span class="go">Read →</span>
+          </div>
+        </a>
+      `).join('');
+
+      document.getElementById('published-articles').style.display = 'block';
+      document.getElementById('plannedHeading').style.display = 'block';
+    } catch (err) {
+      // Public API not reachable (e.g. still being set up) — planned grid alone is fine.
+      document.getElementById('plannedHeading').style.display = 'block';
+    }
+  }
+
+  loadPublished();
+</script>
 
 </body>
 </html>
