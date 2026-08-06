@@ -28,6 +28,7 @@ module.exports = async (req, res) => {
     // supported by the current Vercel Blob SDK and avoids body-parser issues.
     const blob = await put(filename, req, {
       access: 'public',
+      token: process.env.ARTICLE_BLOB_READ_WRITE_TOKEN,
       addRandomSuffix: true,
       contentType,
     });
