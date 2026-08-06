@@ -35,11 +35,11 @@
     <p class="dek">Data-driven research on Uzbekistan's agriculture, trade, and economic development — built from trade statistics, government data, and original analysis.</p>
     <div class="stat-row">
       <div class="stat">
-        <span class="num">0</span>
+        <span class="num" id="publishedCount">0</span>
         <span class="label">Dossiers published</span>
       </div>
       <div class="stat">
-        <span class="num teal">3</span>
+        <span class="num teal" id="upcomingCount">0</span>
         <span class="label">In progress</span>
       </div>
       <div class="stat">
@@ -57,54 +57,10 @@
     <div class="sec-head">
       <span class="sec-num">LATEST RESEARCH</span>
       <h2>Current &amp; upcoming dossiers</h2>
-      <p class="sec-note">Ongoing research on Uzbekistan's agricultural export sector. The first dossier is in progress — check back soon.</p>
+      <p class="sec-note">Ongoing research on Uzbekistan's agricultural export sector. Upcoming dossiers will appear here as they are added.</p>
     </div>
 
-    <div class="article-grid">
-
-      <!-- ARTICLE CARD — placeholder for a planned article -->
-      <div class="article-card is-pending">
-        <div class="card-top">
-          <span class="card-eyebrow">DOSSIER NO. 01</span>
-          <span class="status-pill">In progress</span>
-        </div>
-        <h3>Uzbekistan's Raisin Export Trail</h3>
-        <p>Six years of value, volume, and pricing data across Uzbekistan's top raisin export markets.</p>
-        <div class="card-meta">
-          <span>Coming soon</span>
-          <span>—</span>
-        </div>
-      </div>
-
-      <!-- ARTICLE CARD — placeholder for a planned article -->
-      <div class="article-card is-pending">
-        <div class="card-top">
-          <span class="card-eyebrow">DOSSIER NO. 02</span>
-          <span class="status-pill">In progress</span>
-        </div>
-        <h3>Uzbekistan's Fresh Grape Export Boom</h3>
-        <p>Tracking the rapid rise of fresh grape exports alongside the dried-fruit trade, and where the growth is coming from.</p>
-        <div class="card-meta">
-          <span>Coming soon</span>
-          <span>—</span>
-        </div>
-      </div>
-
-      <!-- ARTICLE CARD — placeholder for a planned article -->
-      <div class="article-card is-pending">
-        <div class="card-top">
-          <span class="card-eyebrow">DOSSIER NO. 03</span>
-          <span class="status-pill">In progress</span>
-        </div>
-        <h3>Regional Productivity of Uzbekistan's Vineyards</h3>
-        <p>A province-by-province look at vineyard yields and productivity across Uzbekistan's grape-growing regions.</p>
-        <div class="card-meta">
-          <span>Coming soon</span>
-          <span>—</span>
-        </div>
-      </div>
-
-    </div>
+    <div class="article-grid" id="upcomingGrid"></div>
   </section>
 
   <section id="data-explorer">
@@ -143,6 +99,66 @@
     <p>An independent student research project on Uzbekistan's agriculture, trade, and economic development.</p>
   </footer>
 </div>
+
+
+<script>
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return 'Coming soon';
+    try {
+      return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch { return iso; }
+  }
+
+  async function loadHomeArticles() {
+    try {
+      const res = await fetch('/api/public/articles');
+      if (!res.ok) throw new Error('Could not load articles');
+      const data = await res.json();
+      const articles = data.articles || [];
+      const published = articles.filter(a => a.status === 'published');
+      const upcoming = articles.filter(a => a.status === 'upcoming');
+
+      document.getElementById('publishedCount').textContent = published.length;
+      document.getElementById('upcomingCount').textContent = upcoming.length;
+
+      const grid = document.getElementById('upcomingGrid');
+      if (upcoming.length === 0) {
+        grid.innerHTML = `
+          <div class="chart-card" style="grid-column:1/-1;">
+            <h3 style="font-family:'Fraunces',serif;font-weight:600;font-size:20px;margin-bottom:6px;">No upcoming dossiers yet</h3>
+            <p style="color:var(--ink-dim);font-size:14.5px;max-width:48ch;">New research will appear here when it is marked as upcoming in the research dashboard.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = upcoming.map((a, i) => `
+        <div class="article-card is-pending">
+          <div class="card-top">
+            <span class="card-eyebrow">DOSSIER NO. ${String(i + 1).padStart(2, '0')}</span>
+            <span class="status-pill">In progress</span>
+          </div>
+          <h3>${escapeHtml(a.title)}</h3>
+          <p>${escapeHtml(a.dek)}</p>
+          <div class="card-meta">
+            <span>${a.date ? 'Coming ' + fmtDate(a.date) : 'Coming soon'}</span>
+            <span>—</span>
+          </div>
+        </div>
+      `).join('');
+    } catch (err) {
+      // Keep the page usable if the public API is temporarily unavailable.
+    }
+  }
+
+  loadHomeArticles();
+</script>
 
 </body>
 </html>

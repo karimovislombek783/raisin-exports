@@ -11,20 +11,21 @@ module.exports = async (req, res) => {
 
   for (const slug of slugs) {
     const article = await kv.get(`article:${slug}`);
-    if (article && article.status === 'published') {
+    if (article && (article.status === 'published' || article.status === 'upcoming')) {
       articles.push({
         slug: article.slug,
         title: article.title,
         dek: article.dek,
         date: article.date,
         coverImageUrl: article.coverImageUrl,
+        status: article.status,
       });
     }
   }
 
   articles.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // Cache briefly at the edge — published articles don't change every second.
+  // Cache briefly at the edge — public article status/content doesn't change every second.
   res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=120');
   res.status(200).json({ articles });
 };

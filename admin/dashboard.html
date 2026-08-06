@@ -54,7 +54,7 @@
   <header class="hero" style="padding: 48px 0 36px;">
     <div class="eyebrow"><span class="dot"></span>SIGNED IN AS <span id="whoami">…</span></div>
     <h1 style="font-size: clamp(28px, 4vw, 40px);">Your articles</h1>
-    <p class="dek" style="margin-bottom:0;">Drafts and published dossiers. Publishing an article makes it appear automatically on the public Research page.</p>
+    <p class="dek" style="margin-bottom:0;">Drafts, upcoming, and published dossiers. Publishing an article makes it appear automatically on the public Research page.</p>
   </header>
 
   <section style="border-bottom:none;">
@@ -127,16 +127,16 @@
       const tr = document.createElement('tr');
 
       const isPublished = a.status === 'published';
-      const statusPillStyle = isPublished
-        ? `style="color:var(--gold-bright); border-color:var(--gold);"`
-        : '';
+      const isUpcoming = a.status === 'upcoming';
+      const statusLabel = isPublished ? 'Published' : isUpcoming ? 'Upcoming' : 'Draft';
+      const statusClass = isPublished ? 'live' : '';
 
       tr.innerHTML = `
         <td style="text-align:left;">
           <a href="/admin/editor.html?slug=${encodeURIComponent(a.slug)}" style="color:var(--ink); text-decoration:none; font-family:'Fraunces',serif; font-size:15px;">${escapeHtml(a.title)}</a>
         </td>
         <td>
-          <span class="status-pill ${isPublished ? 'live' : ''}">${isPublished ? 'Published' : 'Draft'}</span>
+          <span class="status-pill ${statusClass}">${statusLabel}</span>
         </td>
         <td>${fmtDate(a.date)}</td>
         <td>${fmtDate(a.updatedAt)}</td>

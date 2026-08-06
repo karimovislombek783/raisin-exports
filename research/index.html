@@ -48,51 +48,7 @@
       <span class="sec-num">IN PROGRESS</span>
       <h2>Planned dossiers</h2>
     </div>
-    <div class="article-grid">
-
-      <!-- ARTICLE CARD — placeholder for a planned article -->
-      <div class="article-card is-pending">
-        <div class="card-top">
-          <span class="card-eyebrow">DOSSIER NO. 01</span>
-          <span class="status-pill">In progress</span>
-        </div>
-        <h3>Uzbekistan's Raisin Export Trail</h3>
-        <p>Value, volume, and pricing data across Uzbekistan's top raisin export markets.</p>
-        <div class="card-meta">
-          <span>Coming soon</span>
-          <span>—</span>
-        </div>
-      </div>
-
-      <!-- ARTICLE CARD — placeholder for a planned article -->
-      <div class="article-card is-pending">
-        <div class="card-top">
-          <span class="card-eyebrow">DOSSIER NO. 02</span>
-          <span class="status-pill">In progress</span>
-        </div>
-        <h3>Uzbekistan's Fresh Grape Export Boom</h3>
-        <p>Tracking the rapid rise of fresh grape exports alongside the dried-fruit trade, and where the growth is coming from.</p>
-        <div class="card-meta">
-          <span>Coming soon</span>
-          <span>—</span>
-        </div>
-      </div>
-
-      <!-- ARTICLE CARD — placeholder for a planned article -->
-      <div class="article-card is-pending">
-        <div class="card-top">
-          <span class="card-eyebrow">DOSSIER NO. 03</span>
-          <span class="status-pill">In progress</span>
-        </div>
-        <h3>Regional Productivity of Uzbekistan's Vineyards</h3>
-        <p>A province-by-province look at vineyard yields and productivity across Uzbekistan's grape-growing regions.</p>
-        <div class="card-meta">
-          <span>Coming soon</span>
-          <span>—</span>
-        </div>
-      </div>
-
-    </div>
+    <div class="article-grid" id="plannedGrid"></div>
   </section>
 
 </div>
@@ -125,38 +81,63 @@
   async function loadPublished() {
     try {
       const res = await fetch('/api/public/articles');
+      if (!res.ok) throw new Error('Could not load articles');
       const data = await res.json();
       const articles = data.articles || [];
+      const published = articles.filter(a => a.status === 'published');
+      const upcoming = articles.filter(a => a.status === 'upcoming');
 
-      if (articles.length === 0) {
-        document.getElementById('plannedHeading').style.display = 'block';
-        return;
+      const publishedSection = document.getElementById('published-articles');
+      const publishedGrid = document.getElementById('publishedGrid');
+      const plannedHeading = document.getElementById('plannedHeading');
+      const plannedGrid = document.getElementById('plannedGrid');
+
+      if (published.length > 0) {
+        publishedGrid.innerHTML = published.map((a, i) => `
+          <a class="article-card is-live" href="/research/${encodeURIComponent(a.slug)}">
+            <div class="card-top">
+              <span class="card-eyebrow">DOSSIER NO. ${String(i + 1).padStart(2, '0')}</span>
+              <span class="status-pill live">Published</span>
+            </div>
+            <h3>${escapeHtml(a.title)}</h3>
+            <p>${escapeHtml(a.dek)}</p>
+            <div class="card-meta">
+              <span>${fmtDate(a.date)}</span>
+              <span class="go">Read →</span>
+            </div>
+          </a>
+        `).join('');
+        publishedSection.style.display = 'block';
+      } else {
+        publishedSection.style.display = 'none';
       }
 
-      const grid = document.getElementById('publishedGrid');
-      grid.innerHTML = articles.map((a, i) => `
-        <a class="article-card is-live" href="/research/${encodeURIComponent(a.slug)}">
-          <div class="card-top">
-            <span class="card-eyebrow">DOSSIER NO. ${String(i + 1).padStart(2, '0')}</span>
-            <span class="status-pill live">Published</span>
+      if (upcoming.length > 0) {
+        plannedHeading.style.display = 'block';
+        plannedGrid.innerHTML = upcoming.map((a, i) => `
+          <div class="article-card is-pending">
+            <div class="card-top">
+              <span class="card-eyebrow">DOSSIER NO. ${String(i + 1).padStart(2, '0')}</span>
+              <span class="status-pill">In progress</span>
+            </div>
+            <h3>${escapeHtml(a.title)}</h3>
+            <p>${escapeHtml(a.dek)}</p>
+            <div class="card-meta">
+              <span>${a.date ? 'Coming ' + fmtDate(a.date) : 'Coming soon'}</span>
+              <span>—</span>
+            </div>
           </div>
-          <h3>${escapeHtml(a.title)}</h3>
-          <p>${escapeHtml(a.dek)}</p>
-          <div class="card-meta">
-            <span>${fmtDate(a.date)}</span>
-            <span class="go">Read →</span>
-          </div>
-        </a>
-      `).join('');
-
-      document.getElementById('published-articles').style.display = 'block';
-      document.getElementById('plannedHeading').style.display = 'block';
+        `).join('');
+      } else {
+        plannedHeading.style.display = 'none';
+        plannedGrid.innerHTML = '';
+      }
     } catch (err) {
-      // Public API not reachable (e.g. still being set up) — planned grid alone is fine.
-      document.getElementById('plannedHeading').style.display = 'block';
+      document.getElementById('published-articles').style.display = 'none';
+      document.getElementById('plannedHeading').style.display = 'none';
+      document.getElementById('plannedGrid').innerHTML = '';
     }
   }
-
   loadPublished();
 </script>
 

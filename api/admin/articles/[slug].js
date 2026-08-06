@@ -36,8 +36,8 @@ module.exports = async (req, res) => {
 
     const { title, dek, date, coverImageUrl, body: content, status } = parseBody(req);
 
-    if (status && !['draft', 'published'].includes(status)) {
-      res.status(400).json({ error: "status must be 'draft' or 'published'" });
+    if (status && !['draft', 'published', 'upcoming'].includes(status)) {
+      res.status(400).json({ error: "status must be 'draft', 'published', or 'upcoming'" });
       return;
     }
 
