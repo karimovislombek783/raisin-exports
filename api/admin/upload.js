@@ -1,21 +1,6 @@
 const { put } = require('@vercel/blob');
 const { requireAuth } = require('../_lib/auth');
 
-// Reads the raw request body as a Buffer, regardless of whether the Vercel
-// Node runtime already parsed it (some content types get auto-parsed into
-// req.body; anything else is read directly off the request stream).
-async function getRawBody(req) {
-  if (req.body) {
-    if (Buffer.isBuffer(req.body)) return req.body;
-    if (typeof req.body === 'string') return Buffer.from(req.body, 'binary');
-  }
-  const chunks = [];
-  for await (const chunk of req) {
-    chunks.push(chunk);
-  }
-  return Buffer.concat(chunks);
-}
-
 module.exports = async (req, res) => {
   const session = requireAuth(req, res);
   if (!session) return;
@@ -31,19 +16,28 @@ module.exports = async (req, res) => {
     return;
   }
 
+  const contentType = req.headers['content-type'] || 'application/octet-stream';
+  if (!contentType.startsWith('image/')) {
+    res.status(400).json({ error: 'Only image files can be uploaded as cover images.' });
+    return;
+  }
+
   try {
-    const buffer = await getRawBody(req);
-    if (!buffer || buffer.length === 0) {
-      res.status(400).json({ error: 'Empty file upload' });
-      return;
-    }
-    const blob = await put(filename, buffer, {
+    // Stream the uploaded file directly to Vercel Blob instead of trying to
+    // manually read/parse the request body first. This is the upload pattern
+    // supported by the current Vercel Blob SDK and avoids body-parser issues.
+    const blob = await put(filename, req, {
       access: 'public',
       addRandomSuffix: true,
-      contentType: req.headers['content-type'] || undefined,
+      contentType,
     });
+
     res.status(200).json({ url: blob.url });
   } catch (err) {
-    res.status(500).json({ error: 'Upload failed', details: err.message });
+    console.error('Blob upload failed:', err);
+    res.status(500).json({
+      error: 'Upload failed',
+      details: err?.message || 'Unknown Vercel Blob error',
+    });
   }
 };
