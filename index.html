@@ -139,19 +139,29 @@
       }
 
       grid.innerHTML = upcoming.map((a, i) => `
-        <div class="article-card is-pending">
-          <div class="card-top">
-            <span class="card-eyebrow">DOSSIER NO. ${String(i + 1).padStart(2, '0')}</span>
-            <span class="status-pill">In progress</span>
-          </div>
-          <h3>${escapeHtml(a.title)}</h3>
-          <p>${escapeHtml(a.dek)}</p>
-          <div class="card-meta">
-            <span>${a.date ? 'Coming ' + fmtDate(a.date) : 'Coming soon'}</span>
-            <span>—</span>
-          </div>
-        </div>
-      `).join('');
+  <div class="article-card is-pending">
+    ${a.coverImage ? `
+      <img
+        src="${escapeHtml(a.coverImage)}"
+        alt="${escapeHtml(a.title)}"
+        style="width:100%; height:220px; object-fit:cover; display:block; margin-bottom:20px;"
+      >
+    ` : ''}
+
+    <div class="card-top">
+      <span class="card-eyebrow">DOSSIER NO. ${String(i + 1).padStart(2, '0')}</span>
+      <span class="status-pill">In progress</span>
+    </div>
+
+    <h3>${escapeHtml(a.title)}</h3>
+    <p>${escapeHtml(a.dek)}</p>
+
+    <div class="card-meta">
+      <span>${a.date ? 'Coming ' + fmtDate(a.date) : 'Coming soon'}</span>
+      <span>—</span>
+    </div>
+  </div>
+`).join('');
     } catch (err) {
       // Keep the page usable if the public API is temporarily unavailable.
     }
