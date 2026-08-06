@@ -33,19 +33,23 @@
     <div class="eyebrow"><span class="dot"></span>INDEPENDENT RESEARCH — UZBEKISTAN</div>
     <h1>Field notes from Uzbekistan's <em>export</em> economy</h1>
     <p class="dek">Data-driven research on Uzbekistan's agriculture, trade, and economic development — built from trade statistics, government data, and original analysis.</p>
+
     <div class="stat-row">
       <div class="stat">
         <span class="num" id="publishedCount">0</span>
         <span class="label">Dossiers published</span>
       </div>
+
       <div class="stat">
         <span class="num teal" id="upcomingCount">0</span>
         <span class="label">In progress</span>
       </div>
+
       <div class="stat">
         <span class="num">2019–25</span>
         <span class="label">Target data coverage</span>
       </div>
+
       <div class="stat">
         <span class="num teal">Solo</span>
         <span class="label">Independent student project</span>
@@ -69,11 +73,13 @@
       <h2>Explore the underlying data</h2>
       <p class="sec-note">Every dossier on this platform will be built on an interactive chart set, not just static figures. Datasets will appear here as dossiers are published.</p>
     </div>
+
     <div class="chart-card" style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
       <div>
         <h3 style="font-family:'Fraunces', serif; font-weight:600; font-size:20px; margin-bottom:6px;">No datasets published yet</h3>
         <p style="color:var(--ink-dim); font-size:14.5px; max-width:48ch;">The first interactive dataset will go live alongside the first published dossier.</p>
       </div>
+
       <a class="btn" href="/data/">Open Data Explorer <span class="btn-arrow">→</span></a>
     </div>
   </section>
@@ -84,6 +90,7 @@
       <h2>An independent research project</h2>
       <p class="sec-note">This platform is an independent student research project studying Uzbekistan's agriculture, international trade, and economic development — one data-driven dossier at a time.</p>
     </div>
+
     <a class="text-link" href="/about/">More about this project →</a>
   </section>
 
@@ -96,10 +103,10 @@
       <a href="/data/">Data</a>
       <a href="/about/">About</a>
     </div>
+
     <p>An independent student research project on Uzbekistan's agriculture, trade, and economic development.</p>
   </footer>
 </div>
-
 
 <script>
   function escapeHtml(str) {
@@ -110,17 +117,29 @@
 
   function fmtDate(iso) {
     if (!iso) return 'Coming soon';
+
     try {
-      return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-    } catch { return iso; }
+      return new Date(iso).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return iso;
+    }
   }
 
   async function loadHomeArticles() {
     try {
       const res = await fetch('/api/public/articles');
-      if (!res.ok) throw new Error('Could not load articles');
+
+      if (!res.ok) {
+        throw new Error('Could not load articles');
+      }
+
       const data = await res.json();
       const articles = data.articles || [];
+
       const published = articles.filter(a => a.status === 'published');
       const upcoming = articles.filter(a => a.status === 'upcoming');
 
@@ -128,41 +147,68 @@
       document.getElementById('upcomingCount').textContent = upcoming.length;
 
       const grid = document.getElementById('upcomingGrid');
+
       if (upcoming.length === 0) {
         grid.innerHTML = `
           <div class="chart-card" style="grid-column:1/-1;">
-            <h3 style="font-family:'Fraunces',serif;font-weight:600;font-size:20px;margin-bottom:6px;">No upcoming dossiers yet</h3>
-            <p style="color:var(--ink-dim);font-size:14.5px;max-width:48ch;">New research will appear here when it is marked as upcoming in the research dashboard.</p>
+            <h3 style="font-family:'Fraunces',serif;font-weight:600;font-size:20px;margin-bottom:6px;">
+              No upcoming dossiers yet
+            </h3>
+
+            <p style="color:var(--ink-dim);font-size:14.5px;max-width:48ch;">
+              New research will appear here when it is marked as upcoming in the research dashboard.
+            </p>
           </div>
         `;
+
         return;
       }
 
       grid.innerHTML = upcoming.map((a, i) => `
-  <div class="article-card is-pending">
-    ${a.coverImage ? `
-      <img
-        src="${escapeHtml(a.coverImage)}"
-        alt="${escapeHtml(a.title)}"
-        style="width:100%; height:220px; object-fit:cover; display:block; margin-bottom:20px;"
-      >
-    ` : ''}
+        <div class="article-card is-pending">
 
-    <div class="card-top">
-      <span class="card-eyebrow">DOSSIER NO. ${String(i + 1).padStart(2, '0')}</span>
-      <span class="status-pill">In progress</span>
-    </div>
+          ${a.coverImageUrl ? `
+            <img
+              src="${escapeHtml(a.coverImageUrl)}"
+              alt="${escapeHtml(a.title)}"
+              style="
+                width:100%;
+                height:220px;
+                object-fit:cover;
+                display:block;
+                margin-bottom:20px;
+              "
+            >
+          ` : ''}
 
-    <h3>${escapeHtml(a.title)}</h3>
-    <p>${escapeHtml(a.dek)}</p>
+          <div class="card-top">
+            <span class="card-eyebrow">
+              DOSSIER NO. ${String(i + 1).padStart(2, '0')}
+            </span>
 
-    <div class="card-meta">
-      <span>${a.date ? 'Coming ' + fmtDate(a.date) : 'Coming soon'}</span>
-      <span>—</span>
-    </div>
-  </div>
-`).join('');
+            <span class="status-pill">
+              In progress
+            </span>
+          </div>
+
+          <h3>${escapeHtml(a.title)}</h3>
+
+          <p>${escapeHtml(a.dek)}</p>
+
+          <div class="card-meta">
+            <span>
+              ${a.date ? 'Coming ' + fmtDate(a.date) : 'Coming soon'}
+            </span>
+
+            <span>—</span>
+          </div>
+
+        </div>
+      `).join('');
+
     } catch (err) {
+      console.error('Failed to load homepage articles:', err);
+
       // Keep the page usable if the public API is temporarily unavailable.
     }
   }
