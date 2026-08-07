@@ -43,6 +43,8 @@
   <div class="wrap">
     <a class="brand" href="/admin/dashboard.html"><img src="/assets/logo.png" alt="Central Asia Trade Research">Admin <em>Dashboard</em></a>
     <div class="admin-actions">
+      <a class="text-link" href="/admin/products.html">Products</a>
+      <a class="text-link" href="/admin/datasets.html">Datasets</a>
       <a class="btn" href="/admin/editor.html">+ New Article</a>
       <button class="logout-btn" id="logoutBtn">Log out</button>
     </div>
@@ -176,11 +178,17 @@
     if (action === 'toggle') {
       const newStatus = btn.dataset.status === 'published' ? 'draft' : 'published';
       btn.disabled = true;
-      await fetch(`/api/admin/articles/${encodeURIComponent(slug)}`, {
+      const res = await fetch(`/api/admin/articles/${encodeURIComponent(slug)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || 'Could not update article status.');
+        btn.disabled = false;
+        return;
+      }
       loadArticles();
       return;
     }
@@ -188,7 +196,13 @@
     if (action === 'delete') {
       if (!confirm('Delete this article permanently? This cannot be undone.')) return;
       btn.disabled = true;
-      await fetch(`/api/admin/articles/${encodeURIComponent(slug)}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/articles/${encodeURIComponent(slug)}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || 'Could not delete article.');
+        btn.disabled = false;
+        return;
+      }
       loadArticles();
       return;
     }

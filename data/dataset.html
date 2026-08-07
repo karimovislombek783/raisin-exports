@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dataset — Central Asia Trade Research</title><meta name="description" content="Explore a published Central Asia Trade Research dataset.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png"><link rel="stylesheet" href="/assets/site.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Source+Serif+4:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<nav class="site-nav"><div class="wrap"><a class="brand" href="/"><img src="/assets/logo.png" alt="Central Asia Trade Research">Central Asia Trade Research</a><ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/research/">Research</a></li><li><a href="/data/" class="active">Data</a></li><li><a href="/about/">About</a></li></ul></div></nav>
+<main id="datasetRoot" class="wrap" style="display:none;">
+  <div class="article-meta-bar"><a class="back-link" href="/data/">← Back to Data Explorer</a><span class="byline" id="verifiedText"></span></div>
+  <header class="hero"><div class="eyebrow"><span class="dot"></span><span id="typeText">DATASET</span></div><h1 id="titleText"></h1><p class="dek" id="descriptionText"></p><div class="dataset-actions"><a class="btn" id="downloadLink">Download CSV <span class="btn-arrow">↓</span></a><a class="text-link" id="productLink">View product profile →</a></div></header>
+  <section id="snapshotSection" style="display:none;"><div class="sec-head"><span class="sec-num">LATEST AVAILABLE YEAR</span><h2>Product snapshot</h2></div><div class="snapshot-grid" id="snapshotGrid"></div></section>
+  <section><div class="sec-head"><span class="sec-num">DATA TABLE</span><h2 id="tableHeading">Observations</h2><p class="sec-note" id="tableNote"></p></div><div class="data-table-wrap"><table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div></section>
+  <section style="border-bottom:none;"><div class="source-panel"><span class="sec-num">SOURCE &amp; VERIFICATION</span><h2 id="sourceName"></h2><p id="sourceDetails"></p><a class="btn" id="sourceLink" target="_blank" rel="noopener noreferrer">Open original source <span class="btn-arrow">↗</span></a></div></section>
+</main>
+<div id="notFound" class="wrap" style="display:none;"><header class="hero" style="border-bottom:none;"><div class="eyebrow"><span class="dot"></span>NOT FOUND</div><h1>This dataset is not available</h1><p class="dek">It may still be a draft, or the link may be incorrect.</p><a class="btn" href="/data/">Back to Data Explorer</a></header></div>
+<div class="wrap"><footer><div class="footer-links"><a href="/research/">Research</a><a href="/data/">Data</a><a href="/about/">About</a></div><p>An independent student research project on Uzbekistan's agriculture, trade, and economic development.</p></footer></div>
+<script>
+  const pathSlug=decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop()||'');const slug=new URLSearchParams(window.location.search).get('slug')||(pathSlug&&pathSlug!=='dataset.html'?pathSlug:null);const typeLabels={annual_trade:'ANNUAL TRADE DATA',destinations:'DESTINATION DATA',production:'PRODUCTION DATA',routes:'TRADE ROUTE DATA',other:'RESEARCH DATA'};
+  function escapeHtml(value){const div=document.createElement('div');div.textContent=value==null?'':String(value);return div.innerHTML;}
+  function humanize(value){return String(value).replace(/_/g,' ').replace(/\b\w/g,(letter)=>letter.toUpperCase()).replace('Usd','USD').replace('Kg','kg').replace('Yoy','YoY');}
+  function money(value){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(value);}
+  function compactMoney(value){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',notation:'compact',maximumFractionDigits:1}).format(value);}
+  function number(value){return new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(value);}
+  function formatCell(column,value){if(value==null||value==='')return '—';if(column==='year')return String(value);if(column.includes('value_usd'))return money(value);if(column.includes('price_usd'))return `$${Number(value).toFixed(2)}`;if(column.includes('pct'))return `${Number(value)>0?'+':''}${number(value)}%`;if(typeof value==='number')return number(value);return escapeHtml(value);}
+  function snapshotCard(label,value,note){return `<div class="snapshot-item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>${note?`<small>${escapeHtml(note)}</small>`:''}</div>`;}
+  async function load(){
+    if(!slug){document.getElementById('notFound').style.display='block';return;}
+    try{const res=await fetch(`/api/public/datasets/${encodeURIComponent(slug)}`);if(!res.ok)throw new Error();const {dataset,snapshot}=await res.json();document.title=`${dataset.title} — Central Asia Trade Research`;document.getElementById('titleText').textContent=dataset.title;document.getElementById('descriptionText').textContent=dataset.description||'';document.getElementById('typeText').textContent=typeLabels[dataset.dataType]||'DATASET';document.getElementById('verifiedText').textContent=`Checked ${dataset.dateChecked||'date unavailable'}`;document.getElementById('downloadLink').href=`/api/public/datasets/${encodeURIComponent(dataset.slug)}?format=csv`;const productLink=document.getElementById('productLink');productLink.href=`/products/${encodeURIComponent(dataset.productSlug)}`;productLink.textContent=`${dataset.productName} profile →`;
+      if(snapshot){document.getElementById('snapshotSection').style.display='block';document.getElementById('snapshotGrid').innerHTML=[snapshotCard('Product',dataset.productName,`HS ${dataset.hsCode}`),snapshotCard('Data year',snapshot.year,dataset.country),snapshotCard('Export value',compactMoney(snapshot.exportValueUsd),'Current USD'),snapshotCard('Export volume',`${number(snapshot.exportVolumeKg/1000)} t`,'Metric tonnes'),snapshotCard('Average price',snapshot.averagePriceUsdPerKg==null?'—':`$${snapshot.averagePriceUsdPerKg.toFixed(2)}/kg`,'Value ÷ volume'),snapshotCard('Year-on-year',snapshot.yoyExportValueChangePct==null?'—':`${snapshot.yoyExportValueChangePct>0?'+':''}${number(snapshot.yoyExportValueChangePct)}%`,'Export value')].join('');}
+      const columns=dataset.columns||[];document.getElementById('tableHeading').textContent=`${dataset.rowCount||0} observations`;const years=dataset.coveredYears||{};document.getElementById('tableNote').textContent=years.start?`Coverage: ${years.start}${years.end!==years.start?`–${years.end}`:''}. Derived fields are calculated from the uploaded source data.`:'This dataset does not use a year column.';document.getElementById('tableHead').innerHTML=`<tr>${columns.map((column)=>`<th>${escapeHtml(humanize(column))}</th>`).join('')}</tr>`;document.getElementById('tableBody').innerHTML=(dataset.rows||[]).map((row)=>`<tr>${columns.map((column)=>`<td>${formatCell(column,row[column])}</td>`).join('')}</tr>`).join('');document.getElementById('sourceName').textContent=dataset.sourceName;document.getElementById('sourceDetails').textContent=`Data checked ${dataset.dateChecked}. Dataset prepared and calculations verified by Central Asia Trade Research.`;document.getElementById('sourceLink').href=dataset.sourceUrl;document.getElementById('datasetRoot').style.display='block';}
+    catch{document.getElementById('notFound').style.display='block';}
+  }load();
+</script>
+</body>
+</html>

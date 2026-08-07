@@ -74,10 +74,10 @@
       <p class="sec-note">Every dossier on this platform will be built on an interactive chart set, not just static figures. Datasets will appear here as dossiers are published.</p>
     </div>
 
-    <div class="chart-card" style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+    <div class="chart-card" id="homeDataPanel" style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
       <div>
-        <h3 style="font-family:'Fraunces', serif; font-weight:600; font-size:20px; margin-bottom:6px;">No datasets published yet</h3>
-        <p style="color:var(--ink-dim); font-size:14.5px; max-width:48ch;">The first interactive dataset will go live alongside the first published dossier.</p>
+        <h3 id="homeDataTitle" style="font-family:'Fraunces', serif; font-weight:600; font-size:20px; margin-bottom:6px;">Loading the data catalog…</h3>
+        <p id="homeDataText" style="color:var(--ink-dim); font-size:14.5px; max-width:48ch;">Published datasets will appear here automatically.</p>
       </div>
 
       <a class="btn" href="/data/">Open Data Explorer <span class="btn-arrow">→</span></a>
@@ -213,7 +213,27 @@
     }
   }
 
+  async function loadHomeDatasets() {
+    try {
+      const res = await fetch('/api/public/datasets');
+      if (!res.ok) return;
+      const data = await res.json();
+      const datasets = data.datasets || [];
+      const title = document.getElementById('homeDataTitle');
+      const text = document.getElementById('homeDataText');
+      if (!datasets.length) {
+        title.textContent = 'Data catalog ready';
+        text.textContent = 'Verified datasets will appear here when they are published from the admin dashboard.';
+        return;
+      }
+      const rows = datasets.reduce((sum, item) => sum + (item.rowCount || 0), 0);
+      title.textContent = `${datasets.length} published dataset${datasets.length === 1 ? '' : 's'}`;
+      text.textContent = `${rows.toLocaleString()} observations across ${new Set(datasets.map(item => item.productSlug)).size} product profile${new Set(datasets.map(item => item.productSlug)).size === 1 ? '' : 's'}. Explore the figures, sources, and downloadable CSV files.`;
+    } catch {}
+  }
+
   loadHomeArticles();
+  loadHomeDatasets();
 </script>
 
 </body>

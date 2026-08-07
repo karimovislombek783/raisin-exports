@@ -19,6 +19,8 @@ module.exports = async (req, res) => {
         date: article.date,
         coverImageUrl: article.coverImageUrl,
         status: article.status,
+        productSlug: article.productSlug || '',
+        datasetSlug: article.datasetSlug || '',
       });
     }
   }

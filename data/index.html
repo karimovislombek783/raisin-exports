@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Data — Central Asia Trade Research</title>
-<meta name="description" content="Interactive datasets behind the Central Asia Trade Research dossiers.">
+<title>Data Explorer — Central Asia Trade Research</title>
+<meta name="description" content="Explore and download the verified datasets behind Central Asia Trade Research.">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16.png">
 <link rel="icon" href="/favicon.ico">
@@ -14,55 +14,55 @@
 <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body>
-
-<nav class="site-nav">
-  <div class="wrap">
-    <a class="brand" href="/"><img src="/assets/logo.png" alt="Central Asia Trade Research">Central Asia Trade Research</a>
-    <ul class="nav-links">
-      <li><a href="/">Home</a></li>
-      <li><a href="/research/">Research</a></li>
-      <li><a href="/data/" class="active">Data</a></li>
-      <li><a href="/about/">About</a></li>
-    </ul>
-  </div>
-</nav>
-
-<div class="wrap">
-
-  <header class="hero" style="padding: 64px 0 48px;">
-    <div class="eyebrow"><span class="dot"></span>DATA EXPLORER</div>
-    <h1 style="font-size: clamp(32px, 5vw, 52px);">Data</h1>
-    <p class="dek">Every dossier on this platform will be built on an interactive chart set, not just static figures. This page will collect those datasets as they go live.</p>
+<nav class="site-nav"><div class="wrap">
+  <a class="brand" href="/"><img src="/assets/logo.png" alt="Central Asia Trade Research">Central Asia Trade Research</a>
+  <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/research/">Research</a></li><li><a href="/data/" class="active">Data</a></li><li><a href="/about/">About</a></li></ul>
+</div></nav>
+<main class="wrap">
+  <header class="hero" style="padding:64px 0 48px;">
+    <div class="eyebrow"><span class="dot"></span>OPEN RESEARCH DATA</div>
+    <h1 style="font-size:clamp(32px,5vw,52px);">Data Explorer</h1>
+    <p class="dek">Explore the figures behind each dossier. Every published dataset includes its source, verification date, underlying rows, and a CSV download.</p>
+    <div class="stat-row data-stats">
+      <div class="stat"><span class="num" id="datasetCount">0</span><span class="label">Datasets</span></div>
+      <div class="stat"><span class="num teal" id="productCount">0</span><span class="label">Products</span></div>
+      <div class="stat"><span class="num" id="rowCount">0</span><span class="label">Observations</span></div>
+    </div>
   </header>
-
-  <section id="datasets" style="border-bottom:none;">
-    <div class="sec-head">
-      <span class="sec-num">AVAILABLE DATASETS</span>
-      <h2>No datasets published yet</h2>
-      <p class="sec-note">The first interactive dataset — export value, volume, and price data — will appear here once the first dossier is published.</p>
+  <section style="border-bottom:none;">
+    <div class="sec-head"><span class="sec-num">BROWSE</span><h2>Published datasets</h2><p class="sec-note">Search by product, country, HS code, or source.</p></div>
+    <div class="data-controls">
+      <label class="search-control"><span>Search</span><input id="searchInput" type="search" placeholder="Raisins, Uzbekistan, 080620…"></label>
+      <label><span>Dataset type</span><select id="typeFilter"><option value="">All types</option><option value="annual_trade">Annual trade</option><option value="destinations">Destinations</option><option value="production">Regional production</option><option value="routes">Trade routes</option><option value="other">Other</option></select></label>
     </div>
-
-    <div class="chart-card" style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
-      <div>
-        <h3 style="font-family:'Fraunces', serif; font-weight:600; font-size:20px; margin-bottom:6px;">Check back soon</h3>
-        <p style="color:var(--ink-dim); font-size:14.5px; max-width:52ch;">Datasets on raisin exports, fresh grape exports, and vineyard productivity are all in progress.</p>
-      </div>
-      <a class="btn" href="/research/">See research in progress <span class="btn-arrow">→</span></a>
-    </div>
+    <p class="data-message" id="loadingMsg">Loading datasets…</p>
+    <p class="data-message" id="emptyMsg" style="display:none;">No published datasets match these filters.</p>
+    <div class="dataset-grid" id="datasetGrid"></div>
   </section>
-
-</div>
-
-<div class="wrap">
-  <footer>
-    <div class="footer-links">
-      <a href="/research/">Research</a>
-      <a href="/data/">Data</a>
-      <a href="/about/">About</a>
-    </div>
-    <p>An independent student research project on Uzbekistan's agriculture, trade, and economic development.</p>
-  </footer>
-</div>
-
+</main>
+<div class="wrap"><footer><div class="footer-links"><a href="/research/">Research</a><a href="/data/">Data</a><a href="/products/">Products</a><a href="/about/">About</a></div><p>An independent student research project on Uzbekistan's agriculture, trade, and economic development.</p></footer></div>
+<script>
+  let datasets=[];
+  const typeLabels={annual_trade:'Annual trade',destinations:'Destinations',production:'Regional production',routes:'Trade routes',other:'Other'};
+  function escapeHtml(value){const div=document.createElement('div');div.textContent=value==null?'':String(value);return div.innerHTML;}
+  function years(item){const value=item.coveredYears||{};return value.start ? (value.start===value.end?String(value.start):`${value.start}–${value.end}`) : 'No year field';}
+  function render(){
+    const query=document.getElementById('searchInput').value.trim().toLowerCase();const type=document.getElementById('typeFilter').value;
+    const filtered=datasets.filter((item)=>{const haystack=[item.title,item.productName,item.country,item.hsCode,item.sourceName,item.description].join(' ').toLowerCase();return(!query||haystack.includes(query))&&(!type||item.dataType===type);});
+    const grid=document.getElementById('datasetGrid');document.getElementById('emptyMsg').style.display=filtered.length?'none':'block';
+    grid.innerHTML=filtered.map((item)=>`<article class="dataset-card">
+      <div class="dataset-card-top"><span>${escapeHtml(typeLabels[item.dataType]||'Dataset')}</span><span>${escapeHtml(years(item))}</span></div>
+      <h3><a href="/data/${encodeURIComponent(item.slug)}">${escapeHtml(item.title)}</a></h3>
+      <p>${escapeHtml(item.description||'A published dataset from the Central Asia Trade Research catalog.')}</p>
+      <dl class="dataset-meta"><div><dt>Product</dt><dd>${escapeHtml(item.productName)}</dd></div><div><dt>HS code</dt><dd>${escapeHtml(item.hsCode)}</dd></div><div><dt>Rows</dt><dd>${item.rowCount||0}</dd></div><div><dt>Source</dt><dd>${escapeHtml(item.sourceName)}</dd></div></dl>
+      <div class="dataset-actions"><a class="text-link" href="/data/${encodeURIComponent(item.slug)}">Explore data →</a><a class="text-link" href="/api/public/datasets/${encodeURIComponent(item.slug)}?format=csv">Download CSV</a></div>
+    </article>`).join('');
+  }
+  async function load(){
+    try{const res=await fetch('/api/public/datasets');if(!res.ok)throw new Error();const data=await res.json();datasets=data.datasets||[];document.getElementById('loadingMsg').style.display='none';document.getElementById('datasetCount').textContent=datasets.length;document.getElementById('productCount').textContent=new Set(datasets.map((item)=>item.productSlug)).size;document.getElementById('rowCount').textContent=datasets.reduce((sum,item)=>sum+(item.rowCount||0),0).toLocaleString();render();}
+    catch{document.getElementById('loadingMsg').textContent='The data catalog could not be loaded. Please try again shortly.';}
+  }
+  document.getElementById('searchInput').addEventListener('input',render);document.getElementById('typeFilter').addEventListener('change',render);load();
+</script>
 </body>
 </html>

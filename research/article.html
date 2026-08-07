@@ -69,6 +69,10 @@
     </header>
     <section style="border-bottom:none;">
       <img id="coverImg" class="cover-img" style="display:none;">
+      <div id="articleSnapshot" style="display:none; margin-bottom:40px;">
+        <div class="dataset-card-top" style="margin-bottom:14px;"><span>PRODUCT SNAPSHOT</span><a class="text-link" id="snapshotDatasetLink">View dataset →</a></div>
+        <div class="snapshot-grid" id="snapshotGrid"></div>
+      </div>
       <div class="prose" id="articleBody"></div>
     </section>
     <footer>
@@ -87,13 +91,36 @@
 </div>
 
 <script>
-  const slug = new URLSearchParams(window.location.search).get('slug');
+  const pathSlug = decodeURIComponent(window.location.pathname.split('/').filter(Boolean).pop() || '');
+  const slug = new URLSearchParams(window.location.search).get('slug') ||
+    (pathSlug && pathSlug !== 'article.html' ? pathSlug : null);
 
   function fmtDate(iso) {
     if (!iso) return '';
     try {
       return new Date(iso).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
     } catch { return iso; }
+  }
+
+  function compactMoney(value) {
+    return new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', notation:'compact', maximumFractionDigits:1 }).format(value);
+  }
+
+  function formatNumber(value, digits = 1) {
+    return new Intl.NumberFormat('en-US', { maximumFractionDigits:digits }).format(value);
+  }
+
+  function snapshotCard(label, value, note) {
+    const item = document.createElement('div');
+    item.className = 'snapshot-item';
+    const labelEl = document.createElement('span');
+    labelEl.textContent = label;
+    const valueEl = document.createElement('strong');
+    valueEl.textContent = value;
+    const noteEl = document.createElement('small');
+    noteEl.textContent = note || '';
+    item.append(labelEl, valueEl, noteEl);
+    return item;
   }
 
   async function loadArticle() {
@@ -115,6 +142,22 @@
       document.getElementById('articleDek').textContent = a.dek || '';
       document.getElementById('byline').textContent = `Published ${fmtDate(a.date)} · Central Asia Trade Research`;
       document.getElementById('articleBody').innerHTML = marked.parse(a.body || '');
+
+      if (data.snapshot && data.dataset) {
+        const snapshot = data.snapshot;
+        const product = data.product || {};
+        const grid = document.getElementById('snapshotGrid');
+        grid.replaceChildren(
+          snapshotCard('Product', product.name || data.dataset.productName, `HS ${product.hsCode || data.dataset.hsCode}`),
+          snapshotCard('Data year', String(snapshot.year), product.country || data.dataset.country),
+          snapshotCard('Export value', compactMoney(snapshot.exportValueUsd), 'Current USD'),
+          snapshotCard('Export volume', `${formatNumber(snapshot.exportVolumeKg / 1000)} t`, 'Metric tonnes'),
+          snapshotCard('Average price', snapshot.averagePriceUsdPerKg == null ? '—' : `$${snapshot.averagePriceUsdPerKg.toFixed(2)}/kg`, 'Value ÷ volume'),
+          snapshotCard('Year-on-year', snapshot.yoyExportValueChangePct == null ? '—' : `${snapshot.yoyExportValueChangePct > 0 ? '+' : ''}${formatNumber(snapshot.yoyExportValueChangePct, 2)}%`, 'Export value')
+        );
+        document.getElementById('snapshotDatasetLink').href = `/data/${encodeURIComponent(data.dataset.slug)}`;
+        document.getElementById('articleSnapshot').style.display = 'block';
+      }
 
       if (a.coverImageUrl) {
         const img = document.getElementById('coverImg');

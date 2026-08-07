@@ -324,6 +324,44 @@ tbody tr:hover{ background: rgba(201,150,46,0.04); }
 .prose strong{ color: var(--ink); font-weight: 600; }
 
 /* --------------------------------------------------------------------------
+   DATA CATALOG
+   -------------------------------------------------------------------------- */
+.data-stats{ grid-template-columns:repeat(3,1fr); max-width:720px; }
+.data-controls{ display:grid; grid-template-columns:minmax(0,2fr) minmax(180px,1fr); gap:14px; margin-bottom:26px; }
+.data-controls label{ display:flex; flex-direction:column; gap:7px; font:11px 'IBM Plex Mono',monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-dim); }
+.data-controls input,.data-controls select{ width:100%; background:var(--bg-raised); border:1px solid var(--line); color:var(--ink); padding:11px 12px; font:14px 'Source Serif 4',serif; }
+.data-controls input:focus,.data-controls select:focus{ outline:none; border-color:var(--gold); }
+.data-message{ font:13px 'IBM Plex Mono',monospace; color:var(--ink-dim); }
+.dataset-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+.dataset-card{ background:var(--bg-raised); border:1px solid var(--line); padding:24px; display:flex; flex-direction:column; gap:14px; }
+.dataset-card-top{ display:flex; justify-content:space-between; gap:12px; font:11px 'IBM Plex Mono',monospace; letter-spacing:.05em; text-transform:uppercase; color:var(--teal-bright); }
+.dataset-card h3{ font:600 22px/1.2 'Fraunces',serif; }
+.dataset-card h3 a{ color:var(--ink); text-decoration:none; }
+.dataset-card h3 a:hover{ color:var(--gold-bright); }
+.dataset-card > p{ color:var(--ink-dim); font-size:15px; flex:1; }
+.dataset-meta{ display:grid; grid-template-columns:1fr 1fr; gap:12px; padding-top:14px; border-top:1px solid var(--line); }
+.dataset-meta dt,.product-identity span{ font:10px 'IBM Plex Mono',monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-dim); }
+.dataset-meta dd{ color:var(--ink); font-size:14px; margin-top:2px; }
+.dataset-actions{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+.article-meta-bar{ position:relative; z-index:1; padding:18px 0; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.back-link,.byline{ font:12px 'IBM Plex Mono',monospace; color:var(--ink-dim); text-decoration:none; }
+.back-link:hover{ color:var(--gold-bright); }
+.snapshot-grid{ display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line); background:var(--line); gap:1px; }
+.snapshot-item{ background:var(--bg-raised); padding:20px; min-height:128px; display:flex; flex-direction:column; }
+.snapshot-item > span{ font:10px 'IBM Plex Mono',monospace; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-dim); }
+.snapshot-item strong{ font:600 24px 'IBM Plex Mono',monospace; color:var(--gold-bright); margin:10px 0 4px; overflow-wrap:anywhere; }
+.snapshot-item small{ font:11px 'IBM Plex Mono',monospace; color:var(--ink-dim); margin-top:auto; }
+.data-table-wrap{ width:100%; overflow:auto; border:1px solid var(--line); background:var(--bg-raised); }
+.data-table-wrap table{ min-width:720px; }
+.data-table-wrap th,.data-table-wrap td{ white-space:nowrap; }
+.source-panel{ background:var(--bg-raised); border:1px solid var(--line); padding:28px; }
+.source-panel h2{ margin-bottom:10px; }
+.source-panel p{ color:var(--ink-dim); margin-bottom:22px; }
+.product-identity{ display:grid; grid-template-columns:1fr 1fr 2fr; background:var(--line); border:1px solid var(--line); gap:1px; }
+.product-identity div{ background:var(--bg-raised); padding:18px; display:flex; flex-direction:column; gap:7px; }
+.product-identity strong{ font:500 15px 'IBM Plex Mono',monospace; color:var(--ink); }
+
+/* --------------------------------------------------------------------------
    FOOTER — shared
    -------------------------------------------------------------------------- */
 footer{ padding: 48px 0 80px; position:relative; z-index:1; }
@@ -341,6 +379,9 @@ footer .footer-links{ display:flex; gap:18px; margin-bottom: 14px; flex-wrap:wra
   section{ padding: 44px 0; }
   .site-nav .wrap{ padding: 16px 20px; }
   .nav-links{ gap: 16px; }
+  .data-controls{ grid-template-columns:1fr; }
+  .snapshot-grid{ grid-template-columns:repeat(2,1fr); }
+  .product-identity{ grid-template-columns:1fr; }
 }
 
 @media (prefers-reduced-motion: reduce){

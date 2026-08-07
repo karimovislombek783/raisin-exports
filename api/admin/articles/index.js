@@ -29,10 +29,17 @@ module.exports = async (req, res) => {
   }
 
   if (req.method === 'POST') {
-    const { title, dek, date, coverImageUrl, body: content } = parseBody(req);
+    const { title, dek, date, coverImageUrl, body: content, productSlug, datasetSlug, snapshotYear } = parseBody(req);
 
     if (!title || !title.trim()) {
       res.status(400).json({ error: 'Title is required' });
+      return;
+    }
+    const cleanSnapshotYear = snapshotYear === undefined || snapshotYear === null || snapshotYear === ''
+      ? null
+      : Number(snapshotYear);
+    if (cleanSnapshotYear !== null && (!Number.isInteger(cleanSnapshotYear) || cleanSnapshotYear < 1900 || cleanSnapshotYear > 2100)) {
+      res.status(400).json({ error: 'Snapshot year must be a valid four-digit year' });
       return;
     }
 
@@ -44,6 +51,24 @@ module.exports = async (req, res) => {
       suffix += 1;
     }
 
+    let linkedProductSlug = productSlug || '';
+    if (datasetSlug) {
+      const dataset = await kv.get(`dataset:${datasetSlug}`);
+      if (!dataset) {
+        res.status(400).json({ error: 'Selected dataset does not exist' });
+        return;
+      }
+      if (linkedProductSlug && dataset.productSlug !== linkedProductSlug) {
+        res.status(400).json({ error: 'Selected dataset belongs to a different product' });
+        return;
+      }
+      linkedProductSlug = dataset.productSlug;
+    }
+    if (linkedProductSlug && !(await kv.get(`product:${linkedProductSlug}`))) {
+      res.status(400).json({ error: 'Selected product does not exist' });
+      return;
+    }
+
     const now = new Date().toISOString();
     const article = {
       slug,
@@ -52,6 +77,9 @@ module.exports = async (req, res) => {
       date: date || now.slice(0, 10),
       coverImageUrl: coverImageUrl || '',
       body: content || '',
+      productSlug: linkedProductSlug,
+      datasetSlug: datasetSlug || '',
+      snapshotYear: cleanSnapshotYear,
       status: 'draft',
       createdAt: now,
       updatedAt: now,
