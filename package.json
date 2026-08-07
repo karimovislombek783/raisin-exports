@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "description": "Static frontend + Vercel Functions backend for the Uzbekistan Research Desk admin/article system.",
-  "scripts": {
-    "test": "node --test"
-  },
   "dependencies": {
     "@vercel/blob": "^2.6.1",
     "@vercel/kv": "^2.0.0",
