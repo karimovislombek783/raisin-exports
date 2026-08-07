@@ -1,12 +1,26 @@
-const { kv } = require('../../_lib/kv');
-const { datasetListItem } = require('../../_lib/catalog');
+const { kv } = require('../_lib/kv');
+const { datasetListItem } = require('../_lib/catalog');
 
 module.exports = async (req, res) => {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
-  const { slug } = req.query;
+
+  const { slug } = req.query || {};
+  if (!slug) {
+    const slugs = (await kv.smembers('products:index')) || [];
+    const products = [];
+    for (const productSlug of slugs) {
+      const product = await kv.get(`product:${productSlug}`);
+      if (product?.status === 'published') products.push(product);
+    }
+    products.sort((a, b) => a.name.localeCompare(b.name));
+    res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=120');
+    res.status(200).json({ products });
+    return;
+  }
+
   const product = await kv.get(`product:${slug}`);
   if (!product || product.status !== 'published') {
     res.status(404).json({ error: 'Product not found' });

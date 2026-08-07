@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    { "source": "/api/public/products/:slug", "destination": "/api/public/products?slug=:slug" },
+    { "source": "/api/public/datasets/:slug", "destination": "/api/public/datasets?slug=:slug" },
+    { "source": "/api/admin/products/:slug", "destination": "/api/admin/products?slug=:slug" },
+    { "source": "/api/admin/datasets/:slug", "destination": "/api/admin/datasets?slug=:slug" },
     { "source": "/research/:slug", "destination": "/research/article.html?slug=:slug" },
     { "source": "/data/:slug", "destination": "/data/dataset.html?slug=:slug" },
     { "source": "/products/:slug", "destination": "/products/product.html?slug=:slug" }

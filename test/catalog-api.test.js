@@ -36,12 +36,12 @@ test('product, dataset, article, and generated snapshot work together', async ()
   require.cache[kvPath] = { id:kvPath, filename:kvPath, loaded:true, exports:{ kv } };
   require.cache[authPath] = { id:authPath, filename:authPath, loaded:true, exports:{ requireAuth:() => ({ sub:'test-admin' }) } };
 
-  const createProduct = require('../api/admin/products/index');
-  const createDataset = require('../api/admin/datasets/index');
+  const createProduct = require('../api/admin/products');
+  const createDataset = require('../api/admin/datasets');
   const createArticle = require('../api/admin/articles/index');
   const updateArticle = require('../api/admin/articles/[slug]');
   const publicArticle = require('../api/public/articles/[slug]');
-  const publicDataset = require('../api/public/datasets/[slug]');
+  const publicDataset = require('../api/public/datasets');
 
   let res = response();
   await createProduct({ method:'POST', body:{ name:'Raisins', country:'Uzbekistan', hsCode:'080620', hsDescription:'Dried grapes', overview:'Processed grape exports.', status:'published' } }, res);
