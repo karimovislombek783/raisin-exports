@@ -1,5 +1,7 @@
 {
   "rewrites": [
-    { "source": "/research/:slug", "destination": "/research/article.html?slug=:slug" }
+    { "source": "/research/:slug", "destination": "/research/article.html?slug=:slug" },
+    { "source": "/data/:slug", "destination": "/data/dataset.html?slug=:slug" },
+    { "source": "/products/:slug", "destination": "/products/product.html?slug=:slug" }
   ]
 }
