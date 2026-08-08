@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/auth/
+
+Sitemap: https://www.central-asia-trade-research.uz/sitemap.xml
