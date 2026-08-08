@@ -322,6 +322,13 @@ tbody tr:hover{ background: rgba(201,150,46,0.04); }
 .prose p{ color: var(--ink-dim); font-size: 17px; max-width: 62ch; margin-bottom: 18px; }
 .prose p:last-child{ margin-bottom: 0; }
 .prose strong{ color: var(--ink); font-weight: 600; }
+.prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 24px auto 8px;
+  border: 1px solid var(--line);
+}
 
 /* --------------------------------------------------------------------------
    DATA CATALOG
