@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/api/public/articles?format=sitemap" },
     { "source": "/api/public/products/:slug", "destination": "/api/public/products?slug=:slug" },
     { "source": "/api/public/datasets/:slug", "destination": "/api/public/datasets?slug=:slug" },
     { "source": "/api/admin/products/:slug", "destination": "/api/admin/products?slug=:slug" },
